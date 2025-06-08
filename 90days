@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>90-Day Transformation Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #5a67d8;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .month-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: #5a67d8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #4c51bf;
+        }
+        
+        .current-month {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            color: #5a67d8;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 5px;
+        }
+        
+        .day-cell {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px;
+            min-height: 140px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .day-cell.active:hover {
+            border-color: #5a67d8;
+            box-shadow: 0 5px 15px rgba(90, 103, 216, 0.2);
+        }
+        
+        .day-cell.inactive {
+            background: #f7fafc;
+            opacity: 0.5;
+        }
+        
+        .day-cell.future {
+            background: #f1f5f9;
+            border-style: dashed;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .day-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .task-check {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 3px;
+            transition: background 0.2s ease;
+        }
+        
+        .task-check:hover {
+            background: #f0f4f8;
+        }
+        
+        .task-check input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .task-check label {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .task-check.gym-day {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        
+        .gym-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e53e3e;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+        
+        .progress-section {
+            margin-top: 30px;
+        }
+        
+        .progress-header {
+            font-size: 1.5em;
+            color: #5a67d8;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .goal-progress {
+            margin-bottom: 20px;
+        }
+        
+        .goal-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 25px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-grid {
+                gap: 5px;
+            }
+            
+            .day-cell {
+                min-height: 120px;
+                padding: 5px;
+            }
+            
+            .task-check {
+                font-size: 0.75em;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>90-Day Transformation Tracker</h1>
+        <p class="subtitle">Track your CFA study, water intake, supplements, and gym sessions</p>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalDays">0/90</div>
+                <div class="stat-label">Days Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="cfaStreak">0</div>
+                <div class="stat-label">CFA Study Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="gymStreak">0</div>
+                <div class="stat-label">Gym Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overallProgress">0%</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+        </div>
+        
+        <div class="calendar-controls">
+            <div class="month-nav">
+                <button class="nav-btn" onclick="previousMonth()">←</button>
+                <button class="nav-btn" onclick="nextMonth()">→</button>
+            </div>
+            <div class="current-month" id="currentMonth"></div>
+            <button class="nav-btn" onclick="goToToday()">Today</button>
+        </div>
+        
+        <div class="calendar-grid" id="calendar">
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+            <div class="day-header">Sun</div>
+        </div>
+        
+        <div class="progress-section">
+            <h2 class="progress-header">Goal Progress</h2>
+            <div class="goal-progress">
+                <div class="goal-label">
+                    <span>CFA Study (2.5 hrs daily)</span>
+                    <span id="cfaPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cfaProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="goal-progress">
+                <div class="goal-label">
+                    <span>Water Intake (3L daily)</span>
+                    <span id="waterPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="waterProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="goal-progress">
+                <div class="goal-label">
+                    <span>Supplements</span>
+                    <span id="supplementsPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="supplementsProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="goal-progress">
+                <div class="goal-label">
+                    <span>Gym Sessions</span>
+                    <span id="gymPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="gymProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #e53e3e;"></div>
+                <span>Gym Day</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #f1f5f9; border: 2px dashed #e2e8f0;"></div>
+                <span>Future Day</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #f7fafc;"></div>
+                <span>Past Day</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structure
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 89); // 90 days total
+        
+        let currentMonth = new Date();
+        let trackerData = {};
+        
+        // Gym days: Monday (1), Tuesday (2), Saturday (6), Sunday (0)
+        const gymDays = [0, 1, 2, 6];
+        
+        // Initialize tracker data
+        function initializeData() {
+            try {
+                // Try to use localStorage if available
+                const saved = localStorage.getItem('transformationTracker');
+                if (saved) {
+                    trackerData = JSON.parse(saved);
+                }
+            } catch (e) {
+                // Fallback to in-memory storage if localStorage is blocked
+                console.log('localStorage not available, using in-memory storage');
+                if (!trackerData || Object.keys(trackerData).length === 0) {
+                    trackerData = {};
+                }
+            }
+        }
+        
+        // Save data
+        function saveData() {
+            try {
+                // Try to save to localStorage
+                localStorage.setItem('transformationTracker', JSON.stringify(trackerData));
+            } catch (e) {
+                // If localStorage is blocked, data stays in memory
+                console.log('Could not save to localStorage');
+            }
+        }
+        
+        // Check if a date is a gym day
+        function isGymDay(date) {
+            return gymDays.includes(date.getDay());
+        }
+        
+        // Format date as key
+        function dateKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+        
+        // Check if date is within 90-day range
+        function isWithinRange(date) {
+            return date >= startDate && date <= endDate;
+        }
+        
+        // Toggle task completion
+        window.toggleTask = function(dateStr, task) {
+            if (!trackerData[dateStr]) {
+                trackerData[dateStr] = {};
+            }
+            trackerData[dateStr][task] = !trackerData[dateStr][task];
+            saveData();
+            updateStats();
+        }
+        
+        // Create task checkbox
+        function createTaskCheck(dateStr, task, label, checked, isGym = false) {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task-check' + (isGym ? ' gym-day' : '');
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `${dateStr}-${task}`;
+            checkbox.checked = checked || false;
+            checkbox.onchange = function() {
+                toggleTask(dateStr, task);
+            };
+            
+            const labelElem = document.createElement('label');
+            labelElem.htmlFor = checkbox.id;
+            labelElem.textContent = label;
+            
+            taskDiv.appendChild(checkbox);
+            taskDiv.appendChild(labelElem);
+            
+            return taskDiv;
+        }
+        
+        // Render calendar
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+            const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+            
+            // Clear existing calendar (except headers)
+            while (calendar.children.length > 7) {
+                calendar.removeChild(calendar.lastChild);
+            }
+            
+            // Update month display
+            document.getElementById('currentMonth').textContent = 
+                monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Calculate starting position
+            let startDay = monthStart.getDay();
+            startDay = startDay === 0 ? 6 : startDay - 1; // Adjust for Monday start
+            
+            // Add empty cells for days before month start
+            for (let i = 0; i < startDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'day-cell inactive';
+                calendar.appendChild(emptyCell);
+            }
+            
+            // Add days of the month
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let day = 1; day <= monthEnd.getDate(); day++) {
+                const cellDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                cellDate.setHours(0, 0, 0, 0);
+                const dateStr = dateKey(cellDate);
+                const dayData = trackerData[dateStr] || {};
+                
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                
+                if (!isWithinRange(cellDate)) {
+                    dayCell.className += ' inactive';
+                } else if (cellDate > today) {
+                    dayCell.className += ' future';
+                } else {
+                    dayCell.className += ' active';
+                }
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayCell.appendChild(dayNumber);
+                
+                if (isWithinRange(cellDate) && isGymDay(cellDate)) {
+                    const gymIndicator = document.createElement('div');
+                    gymIndicator.className = 'gym-indicator';
+                    gymIndicator.textContent = 'GYM';
+                    dayCell.appendChild(gymIndicator);
+                }
+                
+                if (isWithinRange(cellDate) && cellDate <= today) {
+                    const dayTasks = document.createElement('div');
+                    dayTasks.className = 'day-tasks';
+                    
+                    // CFA Study
+                    const cfaCheck = createTaskCheck(dateStr, 'cfa', 'CFA Study', dayData.cfa);
+                    dayTasks.appendChild(cfaCheck);
+                    
+                    // Water
+                    const waterCheck = createTaskCheck(dateStr, 'water', 'Water 3L', dayData.water);
+                    dayTasks.appendChild(waterCheck);
+                    
+                    // Supplements
+                    const suppsCheck = createTaskCheck(dateStr, 'supplements', 'Supps', dayData.supplements);
+                    dayTasks.appendChild(suppsCheck);
+                    
+                    // Gym (only on gym days)
+                    if (isGymDay(cellDate)) {
+                        const gymCheck = createTaskCheck(dateStr, 'gym', 'Gym', dayData.gym, true);
+                        dayTasks.appendChild(gymCheck);
+                    }
+                    
+                    dayCell.appendChild(dayTasks);
+                }
+                
+                calendar.appendChild(dayCell);
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let totalDays = 0;
+            let cfaDays = 0;
+            let waterDays = 0;
+            let supplementsDays = 0;
+            let gymDays = 0;
+            let totalGymDays = 0;
+            
+            let cfaStreak = 0;
+            let currentCfaStreak = 0;
+            let gymStreak = 0;
+            let currentGymStreak = 0;
+            let lastGymDay = null;
+            
+            // Count completed tasks and calculate streaks
+            for (let d = new Date(startDate); d <= today && d <= endDate; d.setDate(d.getDate() + 1)) {
+                const dateStr = dateKey(d);
+                const dayData = trackerData[dateStr] || {};
+                
+                totalDays++;
+                
+                // CFA tracking
+                if (dayData.cfa) {
+                    cfaDays++;
+                    currentCfaStreak++;
+                } else {
+                    currentCfaStreak = 0;
+                }
+                
+                // Other daily goals
+                if (dayData.water) waterDays++;
+                if (dayData.supplements) supplementsDays++;
+                
+                // Gym tracking
+                if (isGymDay(d)) {
+                    totalGymDays++;
+                    if (dayData.gym) {
+                        gymDays++;
+                        if (!lastGymDay || isConsecutiveGymDay(lastGymDay, d)) {
+                            currentGymStreak++;
+                        } else {
+                            currentGymStreak = 1;
+                        }
+                        lastGymDay = new Date(d);
+                    } else {
+                        currentGymStreak = 0;
+                    }
+                }
+            }
+            
+            // Update display
+            document.getElementById('totalDays').textContent = `${totalDays}/90`;
+            document.getElementById('cfaStreak').textContent = currentCfaStreak;
+            document.getElementById('gymStreak').textContent = currentGymStreak;
+            
+            // Calculate percentages
+            const cfaPercentage = totalDays > 0 ? Math.round((cfaDays / totalDays) * 100) : 0;
+            const waterPercentage = totalDays > 0 ? Math.round((waterDays / totalDays) * 100) : 0;
+            const supplementsPercentage = totalDays > 0 ? Math.round((supplementsDays / totalDays) * 100) : 0;
+            const gymPercentage = totalGymDays > 0 ? Math.round((gymDays / totalGymDays) * 100) : 0;
+            
+            // Update progress bars
+            updateProgressBar('cfa', cfaPercentage);
+            updateProgressBar('water', waterPercentage);
+            updateProgressBar('supplements', supplementsPercentage);
+            updateProgressBar('gym', gymPercentage);
+            
+            // Overall progress
+            const overallProgress = Math.round((cfaPercentage + waterPercentage + supplementsPercentage + gymPercentage) / 4);
+            document.getElementById('overallProgress').textContent = `${overallProgress}%`;
+        }
+        
+        // Check if gym days are consecutive
+        function isConsecutiveGymDay(lastDate, currentDate) {
+            const dayDiff = (currentDate - lastDate) / (1000 * 60 * 60 * 24);
+            
+            // Check if it's the next scheduled gym day
+            let expectedDays = 0;
+            for (let d = new Date(lastDate); d < currentDate; d.setDate(d.getDate() + 1)) {
+                if (!isGymDay(d)) expectedDays++;
+            }
+            
+            return dayDiff <= expectedDays + 1;
+        }
+        
+        // Update progress bar
+        function updateProgressBar(type, percentage) {
+            const progressBar = document.getElementById(`${type}Progress`);
+            const percentageText = document.getElementById(`${type}Percentage`);
+            
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = percentage > 10 ? `${percentage}%` : '';
+            percentageText.textContent = `${percentage}%`;
+        }
+        
+        // Navigation functions
+        window.previousMonth = function() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar();
+        }
+        
+        window.nextMonth = function() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar();
+        }
+        
+        window.goToToday = function() {
+            currentMonth = new Date();
+            renderCalendar();
+        }
+        
+        // Initialize everything
+        initializeData();
+        renderCalendar();
+        updateStats();
+    </script>
+</body>
+</html>
